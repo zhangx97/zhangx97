@@ -1,0 +1,15 @@
+#ifndef READCONFIG_H
+#define READCONFIG_H
+#include <QString>
+
+class ReadConfig
+{
+public:
+    ReadConfig();
+    
+private:
+    QString configPath;
+    
+};
+
+#endif // READCONFIG_H

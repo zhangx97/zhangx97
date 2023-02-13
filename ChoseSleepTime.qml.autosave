@@ -1,0 +1,47 @@
+import QtQuick 2.0
+
+Rectangle
+{
+    id:choseBackground
+    anchors.fill: parent
+    color:"#7F2F4F4F"
+    signal closeChosePage();
+    
+    property alias choseData: dataList
+    property string dataList: []
+    
+    MouseArea
+    {
+        anchors.fill: parent
+        onClicked: 
+        {
+            choseBackground.closeChosePage();
+        }
+    }
+    
+    Rectangle
+    {
+        id:slideChoseList
+        radius: 10
+        
+        ListView
+        {
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
+            delegate:choseItem
+            model:{}
+            clip: true
+        }
+        Component
+        {
+            id:choseItem
+            Rectangle
+            {
+            }
+        }
+    }
+}

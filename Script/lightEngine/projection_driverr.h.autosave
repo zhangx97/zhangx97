@@ -1,0 +1,20 @@
+#ifndef PROJECTION_DRIVERR_H
+#define PROJECTION_DRIVERR_H
+
+#include <QString>
+#include "cyusbseriallib.h"
+
+class ProjectionDriver:public CyUSBSerialLib
+{
+public:
+    ProjectionDriver(QString);
+    bool openProjection() const;
+    bool closeProjection() const;
+private:
+    int lightSensorTypeNumber;
+    int lightValue;
+    int offset;
+};
+
+
+#endif // PROJECTION_DRIVERR_H

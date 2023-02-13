@@ -1,0 +1,30 @@
+#ifndef PRINT3DCONTROLER_H
+#define PRINT3DCONTROLER_H
+
+#include <QObject>
+
+#include "head/Print3DControler/unzip.h"
+#include "head/Print3DControler/xmloperation.h"
+#include "head/Print3DControler/projectionwidget.h"
+#include "head/configandstate.h"
+#include "head/Print3DControler/serialport.h"
+
+class Print3DControler:public QObject
+{
+    Q_OBJECT
+public:
+    Unzip UnzipFile;
+    XMLOperation ReadXMLFile;
+    ProjectionWidget ShowImgToLabel;
+    ConfigAndState PrintConfig;
+    SerialPort SendMessageToMoveMachine;
+
+
+
+signals:
+
+private:
+
+};
+
+#endif // PRINT3DCONTROLER_H

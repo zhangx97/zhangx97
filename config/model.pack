@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationConfig FileVersion="1">
+  <count>701</count>
+  <width>1920</width>
+  <height>1080</height>
+  <thick>0.1</thick>
+  <max_z>70.05486</max_z>
+  <bottom_count>5</bottom_count>
+  <bottom_expose_time>20,20,10,10,10</bottom_expose_time>
+  <layer_expose_time>2</layer_expose_time>
+  <model_name>ZZDB210525029S4.slicepack</model_name>
+  <print_time>2021-05-25 17:35:37</print_time>
+  <material>SG4002-ZZDB</material>
+  <volume>0</volume>
+  <supportpara>0.2,0.45,1.5</supportpara>
+  <special_expose_time>null</special_expose_time>
+</ApplicationConfig>

@@ -1,0 +1,89 @@
+#ifndef GETCONFIG_H
+#define GETCONFIG_H
+#include <QString>
+#include <QMap>
+#include <QFile>
+#include <QTextStream>
+#include <iostream>
+#include <QDebug>
+#include <QtNetwork>
+#include <QUdpSocket>
+
+//这个类用来获取系统需要的配置，系统的状态等一系列信息
+class GetConfig     
+{
+public:
+    GetConfig();
+    
+    
+    QString GetPrintID();
+    int GetPort();
+    
+    
+
+private:
+    //配置文件中的内容
+    bool applyMask;                                                 //
+    QString serialTimeOut;                                          //串口超时时间
+    QString bottomCuringTimes;                                      //底层固化时间
+    int crackDistance;                                              //
+    int ascendSpeed;                                                //电机上升速度，单位：转/分钟
+    int descendSpeed;                                               //电机下降速度，单位同上
+    QString TcpHostIp;                                              //打印机ip
+    int port;                                                       //端口号
+    int targetLight;                                                //光机目标亮度
+    QString theLightValueOfMaterial;                                //不同材料对应的亮度值
+    int heater;                                                     //打印所需的温度值
+    int sleepTime;                                                  //多长时间后待机
+    QString printID;                                                //打印机序列号
+    bool lookState;                                                 //
+    int modelType;                                                  //打印机机型
+    QString deviceSerial;                                           //设备串口
+    bool locker;                                                    //
+    int lightSensorType;                                            //光机类型
+    int lightValueOffset;                                           //光机亮度偏差值
+
+
+    //程序初始化的内容
+    int device_power_pin= 16;                                       //
+    int device_temp_pin = 20;                                       //
+    int press_pin=17;                                               //
+    int led_pin = 23;                                               //
+    QString version = "5.02.8";                                     //版本
+    QString temp_path = "/sys/bus/w1/devices/";                     //
+    QString file_path = "/home/pi/python_project";                  //文件路径
+
+    QString printException = "NULL";                                //
+    QString printState = "NULL";                                    //打印状态
+    QString curState = "NULL";                                      //
+    QList<QString> states;            //[5] = ["start", "stop", "pause", "continue", "heat"]打印状态，全部整理完后再行修改
+    int finish_count = 0;                                           //
+    int resinCuringTime = 0;                                        //固化时间
+    int modelCount = 0;                                             //
+    QString lightengineSN = "NULL";                                 //光机序列号
+    int layerThickness = 0;                                         //切层厚度
+    int curBrightness = 0;                                          //当前亮度
+    int curCurrent = 0;                                             //当前电流
+    int curLEDTemp = 0;                                             //led温度
+    int tempDeviation = 5.0;                                        //温度偏差
+    int pinState= 0;                                                //
+    int curResinTemp = 0;                                           //
+    int curHeatData = 0;                                            //
+    //TFSer = NULL;             //串口通信用的，还没做到
+    //DevSer = NULL;            //串口通信用的，还没做到
+    bool isLocker = false;                                          //
+    QString mask_img = file_path + "/" + "mask.png";                //掩码图片路径
+    QString LOG_FILE = file_path + "/" + 'info.log';                //日志路径
+    bool isSleep = true;                                            //
+    bool is_Cam = false;                                            //
+    //nSleepTime = datetime.datetime.now();       //用于计算休眠的，还没用到
+
+    //发送给arduino的指令
+    QStringList startCommand;
+    QStringList pauseCommand;
+    QStringList continueCommand;
+    QStringList stopCommand;
+
+};
+
+#endif // READCONFIG_H

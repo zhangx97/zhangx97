@@ -1,0 +1,22 @@
+import QtQuick 2.0
+
+Rectangle {
+    id:printConfirmBackground
+    width:1920
+    height:1080
+    color:"#7F2F4F4F"
+    signal closeWifiWindow();
+    property bool clickFlag: true;
+    MouseArea
+    {
+        anchors.fill: parent
+        onClicked: wifiBackground.closeWifiWindow();
+    }
+    Rectangle{
+        id:printConfirmWin
+        width: 480
+        height: 230
+        anchors.centerIn: parent.Center
+        color: "white"
+    }
+}

@@ -1,0 +1,39 @@
+#ifndef VIDEO_PLAYER_H
+#define VIDEO_PLAYER_H
+
+#include <QMediaPlayer>
+#include <QTimer>
+
+#include "head/ShowVideo/video_frames(x).h"
+#include "head/config_and_state.h"
+
+class VideoPlayer:public QObject
+{
+    Q_OBJECT
+public:
+    VideoPlayer(int oddOrEven);
+    ~VideoPlayer();
+
+
+    QMediaPlayer *mediaPlayer;
+    VideoFrames *videoFrames;
+
+    void SetVideoPosition(int frame);
+
+    void GetAndShowFrameSlot(int frame);
+    void GetFrameImageSlot(QImage);
+    void PauseVideoSlot();
+    void FindoutMediaStatusSlot(QMediaPlayer::MediaStatus status);
+
+signals:
+    void SendFrameImageSignal(QImage image);
+    void VideoLoadedSignal();
+
+private:
+    int frameChangeFlag=0;
+    int oddOrEvenCompare;
+    bool videoGetReady = false;
+};
+
+
+#endif // VIDEO_PLAYER_H

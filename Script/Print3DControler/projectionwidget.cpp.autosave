@@ -1,0 +1,18 @@
+#include "head/Print3DControler/projectionwidget.h"
+
+ProjectionWidget::ProjectionWidget(QWidget *parent):QWidget(parent)
+{
+    setWindowFlags(Qt::FramelessWindowHint);
+    move(0,0);
+    resize(1920,1080);
+    setStyleSheet("background-color:rgb(0,0,0)");
+
+    inputImgLabel.move(0,0);
+    inputImgLabel.resize(1920,1080);
+}
+
+void ProjectionWidget::DrawPicture(QString i)
+{
+    QString imgPath = QString("background-image: url(:./config/images/%1.png)").arg(i);
+    inputImgLabel.setStyleSheet(imgPath.toUtf8());
+}

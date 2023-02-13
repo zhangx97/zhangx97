@@ -1,0 +1,14 @@
+#ifndef TCPNETWORK_H
+#define TCPNETWORK_H
+
+
+class TCPNetwork
+{
+public:
+    TCPNetwork();
+
+public:
+    
+};
+
+#endif // TCPNETWORK_H

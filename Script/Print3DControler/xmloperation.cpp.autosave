@@ -1,0 +1,169 @@
+#include "head/Print3DControler/xmloperation.h"
+#include <QFile>
+#include <QDebug>
+#include "head/configandstate.h"
+#include <QApplication>
+
+bool XMLOperation::ReadXML(QString &filePath)
+{
+    QFile xmlFile(filePath);
+    qDebug()<<QApplication::applicationDirPath();
+
+    if (!xmlFile.open(QFile::ReadOnly|QFile::Text))
+    {
+        qDebug()<<"打印配置文件开启失败";
+        return false;
+    }
+    reader = new QXmlStreamReader();
+    reader->setDevice(&xmlFile);
+    while(!reader->atEnd())
+    {
+        if(reader->isStartElement())
+        {
+            if (reader->name() == "ApplicationConfig")
+            {
+                ReadChildElement();
+            }
+            else
+            {
+                qDebug()<<"未发现属性配置子节点";
+            }
+        }
+        else
+        {
+            reader->readNext();
+        }
+    }
+    xmlFile.close();
+    if (reader->hasError())
+    {
+        return false;
+    }
+    else if (xmlFile.error() != QFile::NoError)
+    {
+        return false;
+    }
+    return true;
+}
+
+void XMLOperation::ReadChildElement()
+{
+    Q_ASSERT(reader->isStartElement() && reader->name() == "ApplicationConfig");
+    reader->readNext();
+    while (!reader->atEnd())
+    {
+        if (reader->isEndElement())
+        {
+            reader->readNext();
+            qDebug()<<"跳出";
+            break;
+        }
+
+        if (reader->isStartElement())
+        {
+            if(reader->name() == "count")
+            {
+                ConfigAndState::modelCount = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::modelCount;
+                reader->readNext();     //上一个方法设计失误，以后可以改
+                reader->readNext();
+            }
+            else if(reader->name() == "width")
+            {
+                ConfigAndState::modelPicWidth = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::modelPicWidth;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if(reader->name() == "height")
+            {
+                ConfigAndState::modelPicHeight = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::modelPicHeight;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if(reader->name() == "thick")
+            {
+                ConfigAndState::layerThickness = reader->readElementText().toDouble();
+                qDebug()<<ConfigAndState::layerThickness;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "max_z")
+            {
+                ConfigAndState::maxZ = reader->readElementText().toDouble();
+                qDebug()<<QString::number(ConfigAndState::maxZ,10,5);
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "bottom_count")
+            {
+                ConfigAndState::bottomCount = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::bottomCount;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "bottom_expose_time")
+            {
+                ConfigAndState::bottomCuringTimes = reader->readElementText();
+                qDebug()<<ConfigAndState::bottomCuringTimes;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "layer_expose_time")
+            {
+                ConfigAndState::resinCuringTime = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::resinCuringTime;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "model_name")
+            {
+                ConfigAndState::modelName = reader->readElementText();
+                qDebug()<<ConfigAndState::modelName;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "print_time")
+            {
+                ConfigAndState::printStartTime = reader->readElementText();
+                qDebug()<<ConfigAndState::printStartTime;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "material")
+            {
+                ConfigAndState::material = reader->readElementText();
+                qDebug()<<ConfigAndState::material;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "volume")
+            {
+                ConfigAndState::modelVolume = reader->readElementText().toInt();
+                qDebug()<<ConfigAndState::modelVolume;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "supportpara")
+            {
+                ConfigAndState::supportParament = reader->readElementText();
+                qDebug()<<ConfigAndState::supportParament;
+                reader->readNext();
+                reader->readNext();
+            }
+            else if (reader->name() == "special_expose_time")
+            {
+                ConfigAndState::SpecialExposeLayer = reader->readElementText();
+                qDebug()<<ConfigAndState::SpecialExposeLayer;
+                reader->readNext();
+                reader->readNext();
+            }
+        }
+        else
+        {
+            reader->readNext();
+        }
+    }
+
+}

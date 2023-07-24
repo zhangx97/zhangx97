@@ -78,7 +78,7 @@ void TCPServer::ContinuePrintSlot()
     emit ContinuePrintSignal();
 }
 
-void TCPServer::ProjectionIMGSlot(QString &imgPath)
+void TCPServer::ProjectionIMGSlot(QString imgPath)
 {
     emit ProjectionIMGSignal(imgPath);
 }

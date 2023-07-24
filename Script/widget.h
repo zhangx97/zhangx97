@@ -73,7 +73,7 @@ public:
     void PrintContinueSlot();
     void VideoReadySlot();      //收到开始打印信号，主界面准备图片投影
     void ProcessFrameSlot(/*int frame,QImage image*/);     //开始打印时，主界面显示实时帧
-    void ProjectionIMGSlot(QString &imgPath);        //调试工具用，切换光机投影图片
+    void ProjectionIMGSlot(QString imgPath);        //调试工具用，切换光机投影图片
 
     void PauseShowFrameSlot();
 
@@ -93,7 +93,7 @@ signals:
     void StartPrintSignal();
     void ContinuePrintSignal();
     //图片投影信号
-    void ProjectionIMGSignal(QString &imgPath);
+    void ProjectionIMGSignal(QString imgPath);
     //开始帧图像投影信号
     void GetAndShowFrameSignal();
 

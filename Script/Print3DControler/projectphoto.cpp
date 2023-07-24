@@ -25,9 +25,10 @@ void ProjectPhoto::paint(QPainter *painter)
 //    QString maskPath = "../mask/test.jpg";
     maskImg.load(maskPath);
     maskImg = maskImg.convertToFormat(QImage::Format_Grayscale8);
-
+    sourceImg = sourceImg.mirrored(true, false);
     painter->drawImage(QPoint(0, 0), sourceImg);
     painter->setCompositionMode(QPainter::CompositionMode_Multiply);//设置混合
+    maskImg = maskImg.mirrored(true, false);
     painter->drawImage(QPoint(0, 0), maskImg);
 }
 

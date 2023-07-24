@@ -13,6 +13,7 @@ GetFile::GetFile()
 
 void GetFile::save(QByteArray &fileData)
 {
+    qDebug()<<"fileName : " << fileName;
     QDir fileToSave(QString("../slicepack/%1").arg(fileName));
     QString filePath = fileToSave.absolutePath();
     qDebug()<<"slicepack保存路径："<<filePath;

@@ -139,6 +139,7 @@ void PrintControl::ReadChildElement()
             else if (reader->name() == "material")
             {
                 ConfigAndState::material = reader->readElementText();
+                qDebug()<<"读取到的材料为: " << ConfigAndState::material;
                 reader->readNext();
                 reader->readNext();
             }
@@ -170,6 +171,11 @@ void PrintControl::ReadChildElement()
                 reader->readNext();
                 reader->readNext();
             }
+            else if (reader->name() == "magnification")
+            {
+                reader->readNext();
+                reader->readNext();
+            }
         }
         else
         {
@@ -193,7 +199,11 @@ void PrintControl::DealStartPrint(QString filePath)
     else if(filePath != "")
     {
 //        qDebug()<<"待打印文件名不为空";
-        UnzipForPrint->UnzipImgFile(filePath,"../images",true);
+        QString fileFullPath = "../slicepack/";
+        fileFullPath += filePath;
+        fileFullPath += ".zip";
+        qDebug() << "待解压文件路径 : " << fileFullPath;
+        UnzipForPrint->UnzipImgFile(fileFullPath,"../images",true);
     }
 
     emit UnzipFinish();
@@ -202,27 +212,46 @@ void PrintControl::DealStartPrint(QString filePath)
     QString modelPackPath = "../images/model.pack";
     bool ifReadFinish = ReadXML(modelPackPath);
 
+    materialXml = new XMLOperation("../config/realmakerSetting.config");
+    QString getLightFromXML = materialXml->GetTargetLight(ConfigAndState::material);
+    if (getLightFromXML == "noTargetMaterial")
+    {
+        qDebug() << "没有目标材料的亮度";
+        qDebug() << "打印结束";
+        return ;
+    }
+    ConfigAndState::targetLight = materialXml->GetTargetLight(ConfigAndState::material).toInt();
+    qDebug() << "当前目标亮度 : " << ConfigAndState::targetLight;
+    materialXml->WriteXMLData("目标亮度",getLightFromXML);
+
     PrintCmd = new SerialPort;
     bool changeLEDBelt;
     bool arduinoStartReady;
     //解除待机
 
     //等待加热，加热这块需要等传感器连上再写
+    ConfigAndState::SetPrintState("start");
 
     //向arduino发布指令
     changeLEDBelt = PrintCmd->SendPort(ConfigAndState::startCommand[1].toUtf8());
     arduinoStartReady = PrintCmd->SendPort(ConfigAndState::startCommand[0].toUtf8());
-    if(!changeLEDBelt)
-    {
-        qWarning()<<"串口通信遇到意外";
-    }
-    if(!arduinoStartReady)
+    if(!arduinoStartReady || !changeLEDBelt)
     {
         qWarning("串口通信遇到意外");
         return;
     }
 
+    QThread::sleep(5);
+
+    while (true)
+    {
+        if (ConfigAndState::GetPrintState() == "start")
+        {
+            break ;
+        }
+    }
     projection = new CyUSBSerialLib(ConfigAndState::lightSensorType);
+//    projection->GetDeviceNumber();
     bool states = projection->DeviceInit();
     bool lightReady = projection->AutoSetValue(ConfigAndState::targetLight,ConfigAndState::lightValueOffset);
 
@@ -231,8 +260,15 @@ void PrintControl::DealStartPrint(QString filePath)
         qWarning("光机亮度未能达到预期");
         PrintCmd->SendPort(ConfigAndState::stopCommand[0].toUtf8());
         PrintCmd->SendPort(ConfigAndState::stopCommand[1].toUtf8());
-        return;
+        projection->SetLedOnOff(false);
+        projection->SetProjectorOnOff(false);
+        delete projection;
+        delete PrintCmd;
+        ConfigAndState::SetPrintState("NULL");
+        return ;
     }
+
+    projection->GetLedTemperature();
 
     //开始控制打印图层
     PrintingCount = ConfigAndState::GetFinishCount();
@@ -240,13 +276,15 @@ void PrintControl::DealStartPrint(QString filePath)
     bottomCount = ConfigAndState::bottomCount;
 
     ProjectionLayer();
+//    projection->SetProjectorOnOff(false);
+//    delete projection;
 }
 
 
 void PrintControl::ProjectionLayer()
 {
     qDebug()<<"打印开始";
-    ConfigAndState::SetPrintState("start");
+    //ConfigAndState::SetPrintState("start");
 
     while(PrintingCount<bottomCount + modelCount)
     {
@@ -270,8 +308,9 @@ void PrintControl::ProjectionLayer()
         PrintingCount++;
         ConfigAndState::SetFinishCount(PrintingCount);
     }
+    emit PrintComplete();
     ControlStop();
-    ConfigAndState::SetPrintState("NULL");
+    //ConfigAndState::SetPrintState("NULL");
     qDebug()<<"打印结束";
 }
 
@@ -324,9 +363,12 @@ void PrintControl::BuildNewLayer()
     }
 
     projectionImgPath = QString("../images/%1.png").arg(PrintingCount,4,10,QLatin1Char('0'));
+    QThread::msleep(100);
     emit photoChange(projectionImgPath);
+    QThread::msleep(100);
     QThread::msleep(waitResinCuringTime*1000);
     emit photoChange("");
+    QThread::msleep(800);
 }
 
 void PrintControl::ControlStop()
@@ -341,12 +383,13 @@ void PrintControl::ControlStop()
     printSuccessStop=PrintCmd->SendPort(ConfigAndState::stopCommand[0].toUtf8());
     printSuccessStop=PrintCmd->SendPort(ConfigAndState::stopCommand[0].toUtf8());
 
-    qDebug()<<"停止打印被触发";
-    if(!printSuccessStop)
-    {
-        emit StopPrint();
-        ConfigAndState::SetPrintState("NULL");
-    }
+    projection->SetLedOnOff(false);
+    projection->SetProjectorOnOff(false);
+    delete projection;
+    delete PrintCmd;
+
+    emit StopPrint();
+    ConfigAndState::SetPrintState("NULL");
 }
 
 void PrintControl::ControlPause()
@@ -388,7 +431,7 @@ QString PrintControl::photoPath()
     return projectionImgPath;
 }
 
-void PrintControl::SetPhotoPath(const QString & photoPath)
+void PrintControl::SetPhotoPath(QString photoPath)
 {
     projectionImgPath = photoPath;
     emit photoChange(photoPath);

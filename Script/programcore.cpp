@@ -5,26 +5,17 @@ ProgramCore::ProgramCore(/*QObject *objectItem,*/QObject *parent)
     :QObject (parent)
 {
 
-//    initStep();
-
-    //发送广播线程
-    msg = "realmaker "+ ConfigAndState::printID;
-    sendUDPBoardcast = new UDPNetwork;
-    UDPSendThread = new QThread();
-//    sendUDPBoardcast->moveToThread(UDPSendThread);
-//    UDPSendThread->start();
-//    udpSendTimer = new QTimer();
-//    udpSendTimer->start(1000);
-//    connect(udpSendTimer,&QTimer::timeout,this,&ProgramCore::UDPStart);
-//    connect(this,&ProgramCore::UDPStartSignal,sendUDPBoardcast,&UDPNetwork::SendUDPBoardcast);
+    //initStep();
 
     //光机初始化
     lightInit = new CyUSBSerialLib(ConfigAndState::lightSensorType);
+    lightInit->GetDeviceNumber();
     bool states = lightInit->DeviceInit();
     if(!states)
     {
         qDebug()<<"光机初始化失败";
     }
+    lightInit->SetProjectorOnOff(false);
 
     //LCD屏幕调光测试
 //    QTimer LCDTest;
@@ -39,6 +30,7 @@ ProgramCore::ProgramCore(/*QObject *objectItem,*/QObject *parent)
 
     connect(ControlPrint,&PrintControl::photoChange,this,&ProgramCore::changePrintImage);
     connect(ControlPrint,&PrintControl::StopPrint,this,&ProgramCore::stopPrintSlot);
+    connect(ControlPrint,&PrintControl::PrintComplete,this,&ProgramCore::printCompleteSlot);
 
 
     //开始tcp通信线程
@@ -54,7 +46,20 @@ ProgramCore::ProgramCore(/*QObject *objectItem,*/QObject *parent)
 
     //网络连接测试
     NetCheck = new NetworkActiveCheck();
-    NetCheck->NetworkTest();
+    if (NetCheck->NetworkTest() == 2)
+    {
+        //发送广播线程
+        msg = "realmaker "+ ConfigAndState::printID;
+        qDebug() << "序列号 : " << ConfigAndState::printID;
+        sendUDPBoardcast = new UDPNetwork;
+        UDPSendThread = new QThread();
+        sendUDPBoardcast->moveToThread(UDPSendThread);
+        UDPSendThread->start();
+        udpSendTimer = new QTimer();
+        udpSendTimer->start(1000);
+        connect(udpSendTimer,&QTimer::timeout,this,&ProgramCore::UDPStart);
+        connect(this,&ProgramCore::UDPStartSignal,sendUDPBoardcast,&UDPNetwork::SendUDPBoardcast);
+    }
 
     //加热控制
     HeatControl = new HeaterControl();
@@ -99,6 +104,7 @@ void ProgramCore::LCDScreenGradientTest()
 
 void ProgramCore::UDPStart()
 {
+//    qDebug() << "port : " << ConfigAndState::port;
     emit UDPStartSignal(ConfigAndState::port,msg);
 }
 
@@ -139,7 +145,7 @@ void ProgramCore::PressTest()
 
 }
 
-void ProgramCore::changePrintImage(const QString &imagePath)
+void ProgramCore::changePrintImage(QString imagePath)
 {
     emit PhotoChanged(imagePath);
 }
@@ -168,5 +174,12 @@ void ProgramCore::HeatSwitchChange(bool flag)
 
 void ProgramCore::stopPrintSlot()
 {
+    qDebug() << "ProgramCore::stopPrintSlot() 发送StopPrint()信号";
     emit StopPrint();
+}
+
+void ProgramCore::printCompleteSlot()
+{
+    qDebug() << "ProgramCore::printCompleteSlot() PrintComplete()信号";
+    emit PrintComplete();
 }

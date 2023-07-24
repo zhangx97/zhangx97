@@ -27,6 +27,7 @@ Window
         height: 1080
         width:1920
         fileUrl: sourceImgPath
+        scale: -1
     }
 //    Image
 //    {

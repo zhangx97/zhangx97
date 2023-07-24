@@ -41,12 +41,12 @@ void TcpSocket::ReadDataSlot()
             if(str == "file:")
             {
                 fileMode = true;
-//                qDebug()<<"file指令"<<fileFlag.size()<<fileFlag.toUtf8().data();
+                qDebug()<<"file指令"<<fileFlag.size()<<fileFlag.toUtf8().data();
                 write(fileFlag.toUtf8().data());
             }
             else
             {
-                qDebug()<<"收到的非文件指令："<<buffer;
+                //qDebug()<<"收到的非文件指令："<<buffer;
                 emit SendCMDSignal(buffer,this->socketDescriptor());
             }
         }
@@ -68,9 +68,9 @@ void TcpSocket::ReadDataSlot()
             }
 
             QByteArray packContent = readAll();
-//                qDebug()<<"文件传输时接收到的包头："<<byteToUTF8(packContent);
+            qDebug()<<"文件传输时接收到的包头："<<byteToUTF8(packContent);
             PackAnalyze(packContent);
-//            qDebug()<<"一次包分析完毕";
+            qDebug()<<"一次包分析完毕";
             write(fileFlag.toUtf8().data());
             fileMode = false;
             waitForByte = false;
@@ -135,13 +135,14 @@ void TcpSocket::PackAnalyze(QByteArray pack)
         packCounts+=1;
         if(packCounts == 1)
         {
-//            qDebug()<<"首包："<<filelist;
+            qDebug()<<"首包："<<filelist;
         }
-//        qDebug()<<"存储次数："<<packCounts;
+        qDebug()<<"存储次数："<<packCounts;
     }
+    qDebug()<<"reciveFile.packCount+1 : "<<reciveFile.packCount+1;
     if(packCounts  == reciveFile.packCount+1)
     {
-//        qDebug()<<filelist;
+        qDebug()<<"filelist : " << filelist;
         reciveFile.save(filelist);
     }
 }

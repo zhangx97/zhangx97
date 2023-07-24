@@ -7,7 +7,15 @@
 
 CyUSBSerialLib::CyUSBSerialLib(int projectionType):lightSensorType(projectionType)
 {
-    GetDeviceNumber();
+//    qDebug() << "a devNvm : " << devNum;
+//    if (devNum == 0) {
+//        qDebug() << "GetDeviceNumber运行";
+//        GetDeviceNumber();
+//    }
+//    qDebug() << "b devNvm : " << devNum;
+    //GetDeviceNumber();
+    devNumXML = new XMLOperation("../config/realmakerSetting.config");
+    devNum = devNumXML->ReadXMLText("光机串口号").toInt();
 }
 
 CyUSBSerialLib::~CyUSBSerialLib()
@@ -41,6 +49,7 @@ qint32 CyUSBSerialLib::GetDeviceNumber()
     qDebug()<<QString("获取到的光机串口号：%1").arg(num);
     if(num != -1){
         devNum = static_cast<quint8>(num);
+        devNumXML->WriteXMLData("光机串口号",QString::number(devNum));
         return num;
     }
     return -1;
@@ -84,7 +93,13 @@ int CyUSBSerialLib::GetLedCurrent()
 
     CY_RETURN_STATUS status = CyUSBSerialController::getLedCurrent(devNum, currentR, currentG, currentB);
     if(status == CY_SUCCESS){
-        return currentG;
+        qDebug()<<"currentG : " << currentG;
+        qDebug()<<"currentB : " << currentB;
+        if(lightSensorType == 0)
+            return currentG;
+        else {
+            return currentB;
+        }
     }
     qDebug()<<"LED电流未能获取";      //errorStatus(status);
     return -1;
@@ -127,9 +142,11 @@ int CyUSBSerialLib::GetLightSensorValue()
 {
     qint32 value;
     CY_RETURN_STATUS status = CyUSBSerialController::getLightSensor(devNum, value);
+    qDebug() << "GetLightSensorValue status : " << status;
     if(status != CY_SUCCESS){
         return -1;
     }
+    qDebug() << "GetLightSensorValue : " << value;
     return value;
 }
 
@@ -142,6 +159,7 @@ double CyUSBSerialLib::GetLedTemperature()
         //errorStatus(status);
         return -1;
     }
+    ConfigAndState::curLEDTemp = value / 10;
     return value / 10.0;
 }
 
@@ -239,20 +257,25 @@ bool CyUSBSerialLib::AutoSetValue(int targetLight, int offset)
    }
    //==============================================================
 
-   SetLedCurrent(100);
+   SetLedCurrent(200);
 
    int setNum = 0;
    while (setNum<10)
    {
        int lightValue = GetLightSensorValue();
        int ledCurrent = GetLedCurrent();
-       qDebug()<<QString("通入电流：%1；当前亮度：%2；目标亮度：%3").arg(GetLedCurrent())
+       qDebug()<<QString("通入电流：%1；当前亮度：%2；目标亮度：%3").arg(ledCurrent)
                                                               .arg(lightValue)
                                                               .arg(targetLight);
+
+       ConfigAndState::curBrightness = lightValue;
+       ConfigAndState::curCurrent = ledCurrent;
        if(abs(lightValue - targetLight)>offset)
        {
-           int needCurrentValue = (ledCurrent/lightValue)*targetLight;
+           int needCurrentValue = ledCurrent*targetLight/lightValue;
+           qDebug() << "needCurrentValue" << needCurrentValue;
            SetLedCurrent(needCurrentValue);
+           setNum++;
        }else
        {
            return true;

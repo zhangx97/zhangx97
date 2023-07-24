@@ -24,7 +24,7 @@ public:
     void ChangeIPAndRoute();
     void GetRoute();
     void GetConnectState();
-    void NetworkTest();
+    int NetworkTest();
     bool InternetTest();
     bool LocalNetTest();
 

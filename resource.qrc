@@ -16,6 +16,22 @@
         <file>img/edit.png</file>
         <file>img/log.png</file>
         <file>img/right_arrow.png</file>
+        <file>img/筑真logo.png</file>
+        <file>img/history.png</file>
+        <file>img/icon2-01.png</file>
+        <file>img/icon2-02.png</file>
+        <file>img/icon2-03.png</file>
+        <file>img/icon2-04.png</file>
+        <file>img/icon2-05.png</file>
+        <file>img/icon2-06.png</file>
+        <file>img/icon2-07.png</file>
+        <file>img/icon2-08.png</file>
+        <file>img/icon2-09.png</file>
+        <file>img/lll.png</file>
+        <file>img/model.png</file>
+        <file>img/opendoor.png</file>
+        <file>img/ttt.png</file>
+        <file>img/ttt.psd</file>
     </qresource>
     <qresource prefix="/">
         <file>main.qml</file>
@@ -24,7 +40,6 @@
         <file>SlicePackArea.qml</file>
         <file>MachineStatusPanel.qml</file>
         <file>StatusArea.qml</file>
-        <file>TitleArea.qml</file>
         <file>ProjectionArea.qml</file>
         <file>WifiFunctionBottom.qml</file>
         <file>SettingBottom.qml</file>
@@ -32,6 +47,8 @@
         <file>InfoWindow.qml</file>
         <file>AdjustPlaneWindow.qml</file>
         <file>LogBottom.qml</file>
+        <file>OpenDoorButton.qml</file>
+        <file>MainMenuBar.qml</file>
     </qresource>
     <qresource prefix="/setting">
         <file>SettingDeviceMessage.qml</file>

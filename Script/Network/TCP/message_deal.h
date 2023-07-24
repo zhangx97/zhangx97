@@ -35,7 +35,7 @@ signals:
     void StopPrintSignal();
     void OrderResultSignal(QByteArray,qintptr);
     void FileTransSignal(QByteArray,qintptr);
-    void ProjectionIMG(QString &imgPath);
+    void ProjectionIMG(QString imgPath);
 
 
 private:

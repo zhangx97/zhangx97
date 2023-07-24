@@ -44,8 +44,9 @@ public:
     PrintControl *ControlPrint;
     QThread *PrintThread;
     void stopPrintSlot();
+    void printCompleteSlot();
 
-    void changePrintImage(const QString &imagePath);
+    void changePrintImage(QString imagePath);
     //LCD屏幕渐变测试
     void LCDScreenGradientTest();
     int gradientTest = 0;
@@ -63,6 +64,7 @@ signals:
     void QMLUnzipFinish();
     void PhotoChanged(QString path);
     void StopPrint();
+    void PrintComplete();
 
 private:
     QString msg;

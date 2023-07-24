@@ -1,6 +1,6 @@
 #include "Script/Print3DControler/xml_operation.h"
 //#include <QFile>
-//#include <QDebug>
+#include <QDebug>
 //#include "Script/StateMachine/config_and_state.h"
 //#include <QApplication>
 
@@ -250,5 +250,33 @@ void XMLOperation::clear()
             delete allMaterial.at(i);
         }
         allMaterial.clear();
+    }
+}
+
+QString XMLOperation::GetTargetLight(QString targetMaterial)
+{
+    InitXML();
+    if (initXMLFlag)
+    {
+        QDomElement root = m_doc.documentElement();
+        for (QDomNode n = root.firstChild();!n.isNull();n=n.nextSibling())
+        {
+            QDomElement parent = n.toElement();
+            if (parent.tagName() == "材料对应亮度")
+            {
+                for (QDomNode child = parent.firstChild();!child.isNull();child = child.nextSibling())
+                {
+                    //获取材料名称
+                    QDomElement nameElement = child.toElement();
+
+                    if (nameElement.tagName() == targetMaterial)
+                    {
+                        QDomText t = nameElement.lastChild().toText();
+                        return t.data();
+                    }
+                }
+                return "noTargetMaterial";
+            }
+        }
     }
 }

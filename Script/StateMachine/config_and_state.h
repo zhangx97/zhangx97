@@ -60,7 +60,7 @@ public:
     static int targetLight;//目标亮度
     static QString heater;//返回给排版软件打印所需的温度值以及当前的温度
     static double resinTemp;//树脂槽的温度
-    static int targetResinTemp;//目标温度
+    static double targetResinTemp;//目标温度
     static QString heaterSwitch;//加热开关
     static int sleepTime;//休眠时间
     static QString printID;//打印机序列号
@@ -118,6 +118,9 @@ public:
                               //2表示初始化阶段要打印的文件存在
     static double downloadPercent;//更新包下载的进度
     static bool isInUpdateStatus;//是否处于下载更新包的状态
+    static int slicepackMaxNum;//slicepack文件上限
+
+    static void deleteExtraFile(QString filetype);
 signals:
     
 private:

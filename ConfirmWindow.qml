@@ -19,12 +19,15 @@ Rectangle {
     MouseArea
     {
         anchors.fill: parent
-        onClicked: confirmBackground.closeConfirmWindow();
+        onClicked:
+        {
+            //console.log("点击空白处")
+        }
     }
     Rectangle{
         id:confirmWindow
-        width: 650
-        height: 340
+        width: 800
+        height: 400
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         anchors.centerIn: parent.Center
@@ -32,7 +35,7 @@ Rectangle {
         Rectangle
         {
             id: confirmTitle
-            height: 45
+            height: 80
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -43,7 +46,7 @@ Rectangle {
 
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pointSize: 20
+                font.pointSize: 30
                 color:"white"
 //                anchors.left: parent.left
 //                anchors.right: parent.right
@@ -68,7 +71,7 @@ Rectangle {
 
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pointSize: 18
+                font.pointSize: 28
 
                 text: qsTr(windowContent)
 
@@ -88,19 +91,19 @@ Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 30
                 anchors.left: parent.left
-                anchors.leftMargin: 140
+                anchors.leftMargin: 100
                 border.color: "black"
                 border.width: 1
-                width: 100
-                height: 50
-                radius: 10
+                width: 200
+                height: 100
+                radius: 20
 
                 Text {
                     text: qsTr("确定")
                     anchors.verticalCenter: parent.verticalCenter
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 15
+                    font.pointSize: 24
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 MouseArea
@@ -120,12 +123,12 @@ Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 30
                 anchors.right: parent.right
-                anchors.rightMargin: 140
+                anchors.rightMargin: 100
                 border.color: "black"
                 border.width: 1
-                width: 100
-                height: 50
-                radius: 10
+                width: 200
+                height: 100
+                radius: 20
                 MouseArea
                 {
                     anchors.fill: parent
@@ -136,7 +139,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 15
+                    font.pointSize: 24
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
             }

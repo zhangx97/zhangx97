@@ -20,6 +20,8 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
     QList<QString> paramList;
     paramList<<"SVN"<<"LockState"<<"Heater"<<"TargetLight"<<"ModelType"<<"Debug"<<"LockState";
 
+    XMLOperation * operationXML = new XMLOperation("../config/realmakerSetting.config");
+
     if (order != "state" && !order.contains("PackName"))
     {
     }
@@ -52,71 +54,121 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
         return ;
     }
 
+    qDebug()<<"printerControlMessage : " << printerControlMessage;
     if(printerControlMessage == "continue")      //继续打印
     {
-        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
-        emit OrderResultSignal(tempChange,descriptor);
+//        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
+//        emit OrderResultSignal(tempChange,descriptor);
         qDebug()<<"上位机要求继续打印";
-        ConfigAndState::SetPrintState(printerControlMessage);
-        emit ContinuePrintSignal();
+//        ConfigAndState::SetPrintState(printerControlMessage);
+//        emit ContinuePrintSignal();
     }
     else if(printerControlMessage == "stop")        //停止打印
     {
         qDebug()<<"上位机要求停止打印";
-        ConfigAndState::SetPrintState(printerControlMessage);
+//        ConfigAndState::SetPrintState(printerControlMessage);
 
-        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
-        emit OrderResultSignal(tempChange,descriptor);
+//        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
+//        emit OrderResultSignal(tempChange,descriptor);
         //emit StopPrintSignal();
     }
     else if(printerControlMessage == "pause")       //暂停打印
     {
-        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
-        emit OrderResultSignal(tempChange,descriptor);
+//        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
+//        emit OrderResultSignal(tempChange,descriptor);
 
         qDebug()<<"上位机要求暂停打印";
-        ConfigAndState::SetPrintState(printerControlMessage);
+//        ConfigAndState::SetPrintState(printerControlMessage);
         //emit PausePrintSignal();
     }
     else if(printerControlMessage == "start")       //开始打印
     {
-        bool fileComplete = true;
-        qDebug()<<"上位机要求开始打印";
-        if(ConfigAndState::PrintInitState == 1)
-        {
-            fileComplete = ConfigAndState::CheckPackExist("../slicepack/","images.zip",fileSize);
-            //存在则重命名该文件
-            QFile fileInfo("../slicepack/images.zip");
-            fileInfo.rename(fileName);
-        }
-        else if(ConfigAndState::PrintInitState == 0)
-        {
-            fileComplete = ConfigAndState::CheckPackExist("../","images.zip");
-            if(fileComplete)
-            {
-                filePath= "";
-            }
-            else
-            {
-                qWarning()<<"未找到上位机发送的打印文件";
-                return;
-            }
-        }
-        if(fileComplete)
-        {
-            QByteArray tempChange = printerControlMessage.toUtf8()+"!";
-            emit OrderResultSignal(tempChange,descriptor);
 
-            QString printState = ConfigAndState::GetPrintState();
-            if(printState == "stop" || printState =="NULL")
-            {
-                emit StartPrintSignal(filePath);
-                ConfigAndState::SetPrintState(printerControlMessage);
-            }
-        }
-        else {
-            qWarning()<<"本地未找到对应的打印文件";
-        }
+        qDebug()<<"上位机要求开始打印";
+        qDebug()<<"fileName : " + fileName;
+        QFile fileInfo("../slicepack/images.zip");
+        QString slicepackfileName = "../slicepack/" + fileName;
+        qDebug()<<"slicepackfileName : " + slicepackfileName;
+        QString unzipSlicepackfileName = "../unzipSlicepack/" + fileName.split(".")[0];
+        qDebug()<<"unzipSlicepackfileName : " + unzipSlicepackfileName;
+//        bool fileComplete = ConfigAndState::CheckPackExist("../slicepack/",fileName,fileSize);
+//        if (fileComplete)
+//        {
+//            qDebug()<<"存在重名文件";
+//            system(QString("sudo rm %1 -rf").arg(slicepackfileName).toUtf8());
+//        }
+        system(QString("sudo rm %1 -rf").arg(slicepackfileName).toUtf8());
+        system(QString("sudo rm %1 -rf").arg(unzipSlicepackfileName).toUtf8());
+
+        fileInfo.rename(slicepackfileName);
+
+        QString unzipFileNoSuffix = "../unzipSlicepack/"+fileName.split(".")[0];
+        qDebug()<<"创建文件夹的位置："<<unzipFileNoSuffix;
+        QDir makeDir(unzipFileNoSuffix);
+        makeDir.mkdir(unzipFileNoSuffix);
+        QString dirpath = makeDir.absolutePath();
+        qDebug()<<"解压文件夹："<<dirpath;
+        system(QString("sudo unzip -P realmaker123 %1 -d %2").arg(slicepackfileName).arg(dirpath).toUtf8());
+        QString pngpath = dirpath + "/" + "0*.png";
+        qDebug()<<"删除切层图："<<pngpath;
+        system(QString("sudo rm %1").arg(pngpath).toUtf8());
+        /*---------------------------------判断slicepack文件是否超过最大数量-----------------------------------*/
+        ConfigAndState::deleteExtraFile("ZZDB*.zip");
+        ConfigAndState::deleteExtraFile("XFMX*.zip");
+//        QStringList CurrentAllNameFilters;
+//        CurrentAllNameFilters << "*.zip";
+//        QDir dir("../slicepack/");
+//        QStringList CurrentAllFiles = dir.entryList(CurrentAllNameFilters,QDir::Files|QDir::Readable,QDir::Time);
+//        int deletenum = CurrentAllFiles.count() - ConfigAndState::slicepackMaxNum;
+//        if (deletenum > 0)
+//        {
+//            for (int j = 0; j < deletenum; j++)
+//            {
+//                QString deleteSlicepackFile = QString("../slicepack/%1.zip").arg(CurrentAllFiles[CurrentAllFiles.count()-j-1].split(".")[0]);
+//                QString deleteUnzipSlicepackDir = QString("../unzipSlicepack/%1").arg(CurrentAllFiles[CurrentAllFiles.count()-j-1].split(".")[0]);
+//                system(QString("sudo rm %1 -rf").arg(deleteSlicepackFile).toUtf8());
+//                qDebug() << "电脑端发送slicepack,删除slicepack目录下旧的超过最大文件限制的文件 :" << QString("sudo rm %1 -rf").arg(deleteSlicepackFile);
+//                system(QString("sudo rm %1 -rf").arg(deleteUnzipSlicepackDir).toUtf8());
+//                qDebug() << "电脑端发送slicepack,删除slicepack目录下旧的超过最大文件限制的文件夹 :" << QString("sudo rm %1 -rf").arg(deleteUnzipSlicepackDir);
+//            }
+
+//        }
+        /*---------------------------------判断slicepack文件是否超过最大数量-----------------------------------*/
+//        if(ConfigAndState::PrintInitState == 1)
+//        {
+//            fileComplete = ConfigAndState::CheckPackExist("../slicepack/","images.zip",fileSize);
+//            //存在则重命名该文件
+//            QFile fileInfo("../slicepack/images.zip");
+//            fileInfo.rename(fileName);
+//        }
+//        else if(ConfigAndState::PrintInitState == 0)
+//        {
+//            fileComplete = ConfigAndState::CheckPackExist("../slicepack/","images.zip");
+//            if(fileComplete)
+//            {
+//                filePath= "";
+//            }
+//            else
+//            {
+//                qWarning()<<"未找到上位机发送的打印文件";
+//                return;
+//            }
+//        }
+//        if(fileComplete)
+//        {
+//            QByteArray tempChange = printerControlMessage.toUtf8()+"!";
+//            emit OrderResultSignal(tempChange,descriptor);
+
+//            QString printState = ConfigAndState::GetPrintState();
+//            if(printState == "stop" || printState =="NULL")
+//            {
+//                emit StartPrintSignal(filePath);
+//                ConfigAndState::SetPrintState(printerControlMessage);
+//            }
+//        }
+//        else {
+//            qWarning()<<"本地未找到对应的打印文件";
+//        }
         return;
     }
     else if(printerControlMessage == "cancel")      //python那边也啥都没写，不知道怎么回事，先放着
@@ -223,9 +275,11 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
         if(LEDState == "ON")
         {
             lightengine->SetProjectorOnOff(true);
+            lightengine->AutoSetValue(ConfigAndState::targetLight,ConfigAndState::lightValueOffset);
         }
         else if(LEDState == "OFF")
         {
+            lightengine->SetLedOnOff(false);
             lightengine->SetProjectorOnOff(false);
         }
         else if(LEDState == "up")
@@ -236,20 +290,26 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
         {
             lightengine->SetLedOnOff(false);
         }
+        delete lightengine;
     }
     else if(printerControlMessage == "display")     //完成，未测试,也是图片投影
     {
+        QString imgName = order.split(" ")[1];
+        qDebug() << "imgName : " << imgName;
+        QString imgPath = QString("../projection/%1").arg(imgName);
+        qDebug() << "imgPath : " << imgPath;
+        emit ProjectionIMG(imgPath);
+
         QByteArray tempChange = printerControlMessage.toUtf8()+"!";
         emit OrderResultSignal(tempChange,descriptor);
-        QString imgName = order.split(" ")[1];
-        QString imgPath = QString("../projection/%1").arg(imgName);
-        emit ProjectionIMG(imgPath);
     }
     else if (printerControlMessage == "adjust")//兼容用的调平，也可以在屏幕上直接调
     {
 
         QByteArray tempChange = printerControlMessage.toUtf8()+"!";
-        QByteArray cmd = order.mid(6).toUtf8();
+        qDebug() << "adjust order : " << order;
+        QByteArray cmd = order.mid(7).toUtf8();
+        qDebug() << "adjust cmd : " << cmd;
         AdjustPlatform(cmd);
         emit OrderResultSignal(tempChange,descriptor);
     }
@@ -286,6 +346,49 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
             emit FileTransSignal("accept",descriptor);
         }
     }
+    else if(printerControlMessage == "getBottomTime")//打印前准备工作
+    {
+        QString modeType = order.split(" ")[1];
+        QString modeBottomTime = "";
+        if (modeType == "MX")
+        {
+            modeBottomTime = operationXML->ReadXMLText("MX底片固化时间");
+        }
+        else if (modeType == "YG")
+        {
+            modeBottomTime = operationXML->ReadXMLText("YG底片固化时间");
+        }
+        else if (modeType == "DB")
+        {
+            modeBottomTime = operationXML->ReadXMLText("DB底片固化时间");
+        }
+        else if (modeType == "ZJ")
+        {
+            modeBottomTime = operationXML->ReadXMLText("ZJ底片固化时间");
+        }
+        else if (modeType == "YY")
+        {
+            modeBottomTime = operationXML->ReadXMLText("YY底片固化时间");
+        }
+        QByteArray tempChange = (printerControlMessage + " " + modeBottomTime).toUtf8() + "!";
+        qDebug() << "getBottomTime order : " << tempChange;
+        emit OrderResultSignal(tempChange,descriptor);
+    }
+    else if(printerControlMessage == "scaling")//打印前准备工作
+    {
+
+        QString PCMagnification = operationXML->ReadXMLText("应用模型放大倍数");
+        QByteArray tempChange = (printerControlMessage + " " + PCMagnification).toUtf8()+"!";
+        qDebug() << "scaling order : " << tempChange;
+        emit OrderResultSignal(tempChange,descriptor);
+    }
+    else if(printerControlMessage == "StandardScaling")//打印前准备工作
+    {
+        QString StandardMagnification = operationXML->ReadXMLText("标准模型放大倍数");
+        QByteArray tempChange = (printerControlMessage + " " + StandardMagnification).toUtf8()+"!";
+        qDebug() << "scaling order : " << tempChange;
+        emit OrderResultSignal(tempChange,descriptor);
+    }
     else
     {
 //        QByteArray tempChange = printerControlMessage.toUtf8()+"!";
@@ -293,6 +396,7 @@ void MessageDeal::DealOrder(QString message,qintptr descriptor)
         qDebug()<<"收到未知命令："+printerControlMessage;
         emit OrderResultSignal(tempChange,descriptor);
     }
+    delete operationXML;
 }
 
 void MessageDeal::UTF8ToGB2312(QByteArray &code)

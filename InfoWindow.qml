@@ -71,33 +71,36 @@ Rectangle//整个页面的半透明背景
                 text: qsTr(infoWindowBackground.infoContent)
             }
         }
-        Rectangle//确定按钮
-        {
-            border.color: "black"
-            border.width: 1
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 100
-            height: 50
-            radius: 10
+//        Rectangle//确定按钮
+//        {
+//            border.color: "black"
+//            border.width: 1
+//            anchors.bottom: parent.bottom
+//            anchors.bottomMargin: 30
+//            anchors.horizontalCenter: parent.horizontalCenter
+//            width: 100
+//            height: 50
+//            radius: 10
 
-            Text {
-                id: infoOkText
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+//            Text {
+//                id: infoOkText
+//                anchors.verticalCenter: parent.verticalCenter
+//                anchors.horizontalCenter: parent.horizontalCenter
 
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 15
-                text: qsTr("确定")
-            }
-            MouseArea
-            {
-                anchors.fill: parent
-                onClicked: infoWindowBackground.closeInfoWindow();
-            }
-        }
+//                horizontalAlignment: Text.AlignHCenter
+//                verticalAlignment: Text.AlignVCenter
+//                font.pointSize: 15
+//                text: qsTr("确定")
+//            }
+//            MouseArea
+//            {
+//                anchors.fill: parent
+//                onClicked:
+//                {
+
+//                }
+//            }
+//        }
     }
 }
 

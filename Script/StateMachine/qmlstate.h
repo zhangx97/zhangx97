@@ -24,8 +24,9 @@ public:
     Q_PROPERTY(double layerThickness READ GetLayerThickness NOTIFY layerThicknessChanged)//层厚
     Q_PROPERTY(QString remainingTime READ GetRemainTime NOTIFY remainTimeChanged)//剩余时间
     Q_PROPERTY(bool pauseFlag READ GetPauseFlag WRITE SetPauseFlag NOTIFY pauseFlagChanged)//暂停打印的标志位
-    Q_PROPERTY(QString frontImg READ ReturnBackImg  NOTIFY frontImgGet)//模型俯视图
+    Q_PROPERTY(QString frontImg READ ReturnFrontImg  NOTIFY frontImgGet)//模型俯视图
     Q_PROPERTY(QString backImg READ ReturnBackImg  NOTIFY backImgGet)//模型仰视图
+    Q_PROPERTY(QString testImg READ ReturnTestImg  NOTIFY testImgGet)//模型测试视角视图
     Q_PROPERTY(QString machineSerialNum READ ReturnNum NOTIFY printIDChange)//机器序列号
 
     Q_PROPERTY(double resinTemperature READ GetResinTemp NOTIFY resinTempChanged)//树脂槽温度
@@ -59,6 +60,7 @@ public:
     void SetPauseFlag(bool flag);
     QString ReturnFrontImg();
     QString ReturnBackImg();
+    QString ReturnTestImg();
     QString ReturnNum();
 
     double GetResinTemp();
@@ -78,6 +80,7 @@ signals:
     void pauseFlagChanged(const bool &pauseFlag);// (暂停/继续) 的状态改变时发送的信号。
     void frontImgGet(const QString &printState);
     void backImgGet(const QString &printState);
+    void testImgGet(const QString &printState);
     void printIDChange(const QString &printID);
 
     void resinTempChanged(const double &ResinTemp);

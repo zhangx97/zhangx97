@@ -5,7 +5,7 @@ HeaterControl::HeaterControl(QObject *parent) : QObject(parent)
     wiringPiSetup();
     pinMode(HeaterPin,OUTPUT);
     HeaterClock = new QTimer();
-    HeaterClock->start(1000);
+    HeaterClock->start(5000);
     connect(HeaterClock,&QTimer::timeout,this,&HeaterControl::ConfigTemp);
 }
 
@@ -25,7 +25,7 @@ void HeaterControl::HeaterOff()
     digitalWrite(HeaterPin,LOW);
     if(ConfigAndState::GetPrintState() == "heat")
     {
-        ConfigAndState::SetPrintState("NULL");
+        ConfigAndState::SetPrintState("start");
     }
 }
 
@@ -58,57 +58,66 @@ void HeaterControl::OpenHeater()
 
 void HeaterControl::ConfigTemp()
 {
-    QString temperaturePath = "/sys/bus/w1/devices/";
-    QString targetDir = "";
-    QDir dir(temperaturePath);
-    bool hasFileFlag = false;
-    double tempValue = 0;
-    foreach (QFileInfo info,dir.entryInfoList())
+    if (ConfigAndState::GetPrintState() == "start" || ConfigAndState::GetPrintState() ==  "continue" || ConfigAndState::GetPrintState() ==  "heat")
     {
-        if(info.fileName().startsWith("28"))
+        QString temperaturePath = "/sys/bus/w1/devices/";
+        QString targetDir = "";
+        QDir dir(temperaturePath);
+        bool hasFileFlag = false;
+        double tempValue = 0;
+        foreach (QFileInfo info,dir.entryInfoList())
         {
-            targetDir = info.fileName();
+            if(info.fileName().startsWith("28"))
+            {
+                targetDir = info.fileName();
+            }
         }
-    }
-    if(targetDir != "")
-    {
-        QString infoFilePath = QString("%1%2/w1_slave").arg(temperaturePath).arg(targetDir);
-        QString TemperatureContent = "";
-        QFile temperatureFile(infoFilePath);
-
-        if(!temperatureFile.open(QIODevice::ReadOnly))
+        if(targetDir != "")
         {
-            qDebug()<<"无法打开温控文件";
+            QString infoFilePath = QString("%1%2/w1_slave").arg(temperaturePath).arg(targetDir);
+            QString TemperatureContent = "";
+            QFile temperatureFile(infoFilePath);
+
+            if(!temperatureFile.open(QIODevice::ReadOnly))
+            {
+                qDebug()<<"无法打开温控文件";
+                ConfigAndState::resinTemp = 0;
+                return;
+            }
+            hasFileFlag = true;
+            QTextStream fileStream(&temperatureFile);
+            //读取文件内容
+            TemperatureContent = fileStream.readAll();
+            temperatureFile.close();
+            tempValue = TemperatureContent.split("\n")[1].split("=")[1].toDouble();
+            tempValue = tempValue/1000;
+            ConfigAndState::resinTemp = tempValue;
+        }
+        else
+        {
             ConfigAndState::resinTemp = 0;
             return;
         }
-        hasFileFlag = true;
-        QTextStream fileStream(&temperatureFile);
-        //读取文件内容
-        TemperatureContent = fileStream.readAll();
-        temperatureFile.close();
-        tempValue = TemperatureContent.split("\n")[1].split("")[9].toDouble();
-        tempValue = tempValue/1000;
-        ConfigAndState::resinTemp = tempValue;
-    }
-    else
-    {
-        ConfigAndState::resinTemp = 0;
-        return;
+
+        qDebug() << "ConfigAndState::GetPrintState()的状态： " << ConfigAndState::GetPrintState();
+
+        if(hasFileFlag && tempValue < ConfigAndState::targetResinTemp && ConfigAndState::GetPrintState() != "heat")
+        {
+            qDebug() << "开始加热-目标温度-" << ConfigAndState::targetResinTemp << "-当前温度-" << tempValue;
+            HeaterOn();
+        }
+        else if(hasFileFlag && tempValue > ConfigAndState::targetResinTemp + 5 && ConfigAndState::GetPrintState() == "heat")
+        {
+            qDebug() << "停止加热-目标温度-" << ConfigAndState::targetResinTemp << "-当前温度-" << tempValue;
+            HeaterOff();
+        }
+        else
+        {
+            qDebug() << "保持前一状态-目标温度-" << ConfigAndState::targetResinTemp << "-当前温度-" << tempValue;
+            //HeaterOff();
+        }
+        int target = ConfigAndState::heater.split(",")[0].toInt();
+        ConfigAndState::heater = QString("%1,%2").arg(QString::number(target)).arg(QString::number(tempValue,10,1));
     }
 
-    if(hasFileFlag && tempValue<ConfigAndState::targetResinTemp && ConfigAndState::GetPrintState() != "heat")
-    {
-        HeaterOn();
-    }
-    else if(hasFileFlag && tempValue>ConfigAndState::targetResinTemp && ConfigAndState::GetPrintState() == "heat")
-    {
-        HeaterOff();
-    }
-    else
-    {
-        HeaterOff();
-    }
-    int target = ConfigAndState::heater.split(",")[0].toInt();
-    ConfigAndState::heater = QString("%1,%2").arg(QString::number(target)).arg(QString::number(tempValue,10,1));
 }

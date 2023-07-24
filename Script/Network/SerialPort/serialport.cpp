@@ -47,6 +47,7 @@ bool SerialPort::SerialPortInit()//初始化串口
 
 SerialPort::~SerialPort()
 {
+    qDebug() << "SerialPort析构";
     if(serialPort->isOpen())
     {
         serialPort->close();
@@ -182,24 +183,27 @@ bool SerialPort::SendPort(QByteArray message)//发送串口信息
     if(serialIsOpen)
     {
         int successSendFlag;
-        if(message.trimmed() == "G28")
-        {
+//        if(message.trimmed() == "G28")
+//        {
 //            qDebug()<<"发送包含校准参数的指令";
-            QString str = QString("PRESS_INIT %1\n").arg(ConfigAndState::pluseCount);
-            qDebug()<<QString("发送消息:")<<str.toUtf8();
-            serialPort->write(str.toUtf8().data());
-            bool adjustReady = ReceiveInfo(str.toUtf8());
-            if(adjustReady)
-            {
-                successSendFlag = serialPort->write(message.data());
-                qDebug()<<QString("发送消息:%1").arg(QString(message));
-            }
-        }
-        else
-        {
-            successSendFlag = serialPort->write(message.data());
-            qDebug()<<QString("发送消息:%1").arg(QString(message));
-        }
+//            QString str = QString("PRESS_INIT %1\n").arg(ConfigAndState::pluseCount);
+//            qDebug()<<QString("发送消息:")<<str.toUtf8();
+//            serialPort->write(str.toUtf8().data());
+//            bool adjustReady = ReceiveInfo(str.toUtf8());
+//            if(adjustReady)
+//            {
+//                successSendFlag = serialPort->write(message.data());
+//                qDebug()<<QString("发送消息:%1").arg(QString(message));
+//            }
+//        }
+//        else
+//        {
+//            successSendFlag = serialPort->write(message.data());
+//            qDebug()<<QString("发送消息:%1").arg(QString(message));
+//        }
+        message = message + "\n";
+        successSendFlag = serialPort->write(message.data());
+        qDebug()<<QString("发送消息:%1").arg(QString(message));
 
 
         if(ReceiveInfo(message) && (successSendFlag != -1))

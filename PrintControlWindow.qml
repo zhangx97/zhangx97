@@ -11,6 +11,10 @@ Rectangle
     signal closePrintWindow();
     property Item loader
 
+    width:1920
+    height:1080
+    color:"#7F2F4F4F"
+
     QMLState
     {
         id:qmlPrintState
@@ -18,12 +22,22 @@ Rectangle
 
     Rectangle//界面背景
     {
-        height:1080
+        id:printRec
         width:1920
+        height:1080
+        radius: 50
+
+        anchors.centerIn: parent
+        NumberAnimation on scale { to: 1; duration: 500}
 
         Rectangle//显示在打印中的图片
         {
-            anchors.fill: parent
+            height:parent.height*4/5
+            width:parent.width*4/5
+            anchors.left: parent.left
+            anchors.leftMargin:20
+            anchors.top:parent.top
+            anchors.topMargin:100
             SwipeView{//预览图切换器
                 id : swipeView
                 anchors.fill: parent
@@ -72,6 +86,26 @@ Rectangle
                         }
                     }
                 }
+                Rectangle{//图片3
+                    color: "#f2f2f7"
+                    radius: 20
+                    Image {
+                        id: name3
+                        source: qmlPrintState.testImg
+                        anchors.fill: parent
+                        visible: false
+                    }
+                    OpacityMask{
+                        anchors.fill: name3
+                        source:name3
+                        maskSource:Rectangle{
+                            width:name3.width
+                            height: name3.height
+                            radius: 20
+                            visible: false
+                        }
+                    }
+                }
             }
             PageIndicator{//预览图指示圈
                 id:indicator
@@ -86,22 +120,26 @@ Rectangle
         Rectangle//控制面板
         {
             id:controlPanel
-//                anchors.fill: parent
-            anchors.verticalCenter:parent.verticalCenter
-                color:"#7fafbcbc"
-            width:parent.width/3
-            height: parent.height/3
+            anchors.right:parent.right
+            anchors.rightMargin:20
+            anchors.top:parent.top
+            anchors.topMargin:180
+            color:"#7fafbcbc"
+            width:parent.width/5-60
+            height: parent.height*4/5-80
 //            opacity: 0.8
-            x:100
+            //x:100
             radius: 30
             border.color:"white"
             border.width:2
             Item//控制区左侧进度条
             {
                 id: item1
-                width:parent.width/2
-                height: parent.height
-                anchors.left: parent.left
+                width:parent.width
+                height: parent.width
+                anchors.horizontalCenter:parent.horizontalCenter
+                anchors.top:parent.top
+                anchors.topMargin:10
                 PrintStatusPanel
                 {
                     id:printPanel
@@ -119,9 +157,11 @@ Rectangle
             Item//控制区右侧按钮与信息
             {
                 id: item2
-                anchors.right: parent.right
-                width:parent.width/2
-                height: parent.height
+                anchors.horizontalCenter:parent.horizontalCenter
+                anchors.bottom:parent.bottom
+                anchors.bottomMargin:10
+                width:parent.width
+                height: parent.height-parent.width
 
                 ColumnLayout
                 {
@@ -131,46 +171,64 @@ Rectangle
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
 
-                    Rectangle//（继续/暂停）按钮
+                    Item
                     {
-                        id:printPause
+                        id:timeRemain
                         height: 60
-                        radius: 10
                         Layout.leftMargin: parent.width/2-width/2
                         width:180
-                        color: "#007aff"
+
                         Text {
-                            id: pauseAndContinue
-                            color: "#ffffff"
-                            text: qsTr("暂停")
+                            id: remainingTime
+//                            text: "剩余时间："+qmlPrintState.remainTime//计算剩余时间
                             anchors.fill: parent
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            font.pointSize: 16
+                            font.pointSize: 12
+//                                opacity: 0.5
                         }
-                        MouseArea
-                        {
-                            anchors.fill: parent
-                            //控制暂停/继续
-                            onClicked:
-                            {
-                                //判断是暂停还是继续
-                                if(pauseAndContinue.text === "继续")
-                                {
-                                    printPanel.propertyName = "开始打印";
-                                    pauseAndContinue.text = "暂停";
-                                    qmlPrintState.printContinue();
+                    }//显示剩余时间
 
-                                }
-                                else if(pauseAndContinue.text === "暂停")
-                                {
-                                    printPanel.propertyName = "暂停";
-                                    pauseAndContinue.text = "继续";
-                                    qmlPrintState.pause();
-                                }
-                            }
-                        }
-                    }
+//                    Rectangle//（继续/暂停）按钮
+//                    {
+//                        id:printPause
+//                        height: 60
+//                        radius: 10
+//                        Layout.leftMargin: parent.width/2-width/2
+//                        width:180
+//                        color: "#007aff"
+//                        Text {
+//                            id: pauseAndContinue
+//                            color: "#ffffff"
+//                            text: qsTr("暂停")
+//                            anchors.fill: parent
+//                            horizontalAlignment: Text.AlignHCenter
+//                            verticalAlignment: Text.AlignVCenter
+//                            font.pointSize: 16
+//                        }
+//                        MouseArea
+//                        {
+//                            anchors.fill: parent
+//                            //控制暂停/继续
+//                            onClicked:
+//                            {
+//                                //判断是暂停还是继续
+//                                if(pauseAndContinue.text === "继续")
+//                                {
+//                                    printPanel.propertyName = "开始打印";
+//                                    pauseAndContinue.text = "暂停";
+//                                    qmlPrintState.printContinue();
+
+//                                }
+//                                else if(pauseAndContinue.text === "暂停")
+//                                {
+//                                    printPanel.propertyName = "暂停";
+//                                    pauseAndContinue.text = "继续";
+//                                    qmlPrintState.pause();
+//                                }
+//                            }
+//                        }
+//                    }
                     Rectangle//停止按钮
                     {
                         id:printStop
@@ -200,28 +258,122 @@ Rectangle
                             //显示停止打印提示栏，按确定后返回主界面
                         }
                     }
-
-                    Item
-                    {
-                        id:timeRemain
-                        height: 60
-                        Layout.leftMargin: parent.width/2-width/2
-                        width:180
-
-                        Text {
-                            id: remainingTime
-//                            text: "剩余时间："+qmlPrintState.remainTime//计算剩余时间
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.pointSize: 12
-//                                opacity: 0.5
-                        }
-                    }//显示剩余时间
                 }
             }
         }
     }
+
+    Rectangle
+    {
+        id:btn1
+        height: 60
+        width: controlPanel.width
+        radius: 10
+        color: "#007aff"
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        anchors.top: parent.top
+        anchors.topMargin: 100
+        visible:true
+        Text {
+            text: "返回主界面"
+            font.pointSize: 18
+            anchors.centerIn: parent
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                animation.start()
+                disable()
+            }
+        }
+    }
+
+    Rectangle
+    {
+        id:btn2
+        height: 60
+        width: controlPanel.width-20
+        radius: 10
+        color: "#007aff"
+        anchors.top: btn1.top
+        anchors.left: btn1.left
+        visible:false
+        Text {
+            text: "正在打印,点击查看详情"
+            font.pointSize: 18
+            anchors.centerIn: parent
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                animation2.start()
+                show()
+
+            }
+        }
+    }
+
+    NumberAnimation
+    {
+        id: animation
+        target: printRec
+        easing.type: Easing.InCubic
+        properties:  "scale"
+        to: 0
+        duration: 500
+    }
+
+    NumberAnimation
+    {
+        id: animation2
+        target: printRec
+        easing.type: Easing.InCubic
+        properties:  "scale"
+        to: 1
+        duration: 500
+    }
+
+    Rectangle {
+        height: 80
+        width: parent.width/2
+        color: "transparent"
+        anchors.top: parent.top
+        anchors.right : parent.right
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+            }
+        }
+    }
+
+    Rectangle {
+        height: 171
+        width: 585
+        color: "transparent"
+        anchors.bottom: parent.bottom
+        anchors.right : parent.right
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+            }
+        }
+    }
+
+    function disable()
+    {
+        btn1.visible = false
+        btn2.visible = true
+    }
+
+    function show()
+    {
+        btn1.visible = true
+        btn2.visible = false
+    }
+
     Loader//显示提示窗口
     {
         id:infoWindowLoader
@@ -235,13 +387,13 @@ Rectangle
         {
             showPrintInfo(nowPrintState);
         }
-        function onBrightnessChanged(ledBright)
+        function onLedBrightnessChanged(ledBright)
         {
-            //
+            console.log("onBrightnessChanged")
         }
-        function onTemperatureChanged(ledTemp)
+        function onLedTemperatureChanged(ledTemp)
         {
-            //
+            console.log("onBrightnessChanged")
         }
         function onLayerCountChanged(allLayerCount)
         {
@@ -298,28 +450,33 @@ Rectangle
         }
         function onClickOk(type)
         {
-            if(type === "stopPrint")
+            if(type == "stopPrint")
             {
+                console.log("PrintControlWindow.qml stopPrint 455");
                 qmlPrintState.stop();
                 infoWindowLoader.source = "";
+                console.log("打印控制页面弹窗提醒打印结束");
                 bottomItem.closePrintWindow();
             }
         }
-        function onCloseInfoWindow()
-        {
-            infoWindowLoader.source = "";
-            bottomItem.closePrintWindow();
-        }
+
+        //InfoWindow.qml中的信号
+//        function onCloseInfoWindow()
+//        {
+//            console.log("PrintControlWindow.qml onCloseInfoWindow 463");
+//            infoWindowLoader.source = "";
+//            bottomItem.closePrintWindow();
+//        }
     }
 
-    function printFinish()
-    {
-        console.log("打印控制页面弹窗提醒打印结束");
-        infoWindowLoader.source ="qrc:/InfoWindow.qml"
-//        infoWindowLoader.item.cmdType = "stopPrint"
-        infoWindowLoader.item.title = "打印完成"
-        infoWindowLoader.item.content = "打印已完成，即将退出该界面"
-    }
+//    function onPrintFinish()
+//    {
+//        console.log("打印控制页面弹窗提醒打印结束");
+//        infoWindowLoader.source ="qrc:/InfoWindow.qml"
+////        infoWindowLoader.item.cmdType = "stopPrint"
+//        infoWindowLoader.item.title = "打印完成"
+//        infoWindowLoader.item.content = "打印已完成，即将退出该界面"
+//    }
 
     function showPrintInfo(state)//切换进度条中的打印状态
     {
@@ -330,7 +487,7 @@ Rectangle
         else if(state == "stop")
         {
             printPanel.propertyName =  "停止"
-            bottomItem.stopPrint();
+//            bottomItem.stopPrint();
         }
         else if(state == "heat")
         {

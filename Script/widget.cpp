@@ -208,7 +208,7 @@ void Widget::PrintContinueSlot()
 
 }
 
-void Widget::ProjectionIMGSlot(QString &imgPath)
+void Widget::ProjectionIMGSlot(QString imgPath)
 {
     qDebug()<<"发送【切换投影图片】信号到主函数";
     emit ProjectionIMGSignal(imgPath);

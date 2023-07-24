@@ -9,6 +9,7 @@ QMLControl::QMLControl()
     connect(core,&ProgramCore::QMLUnzipFinish,this,&QMLControl::UnzipFinishSlot);
     connect(core,&ProgramCore::PhotoChanged,this,&QMLControl::PhotoChangeSlot);
     connect(core,&ProgramCore::StopPrint,this,&QMLControl::StopPrintSlot);
+    connect(core,&ProgramCore::PrintComplete,this,&QMLControl::PrintCompleteSlot);
     connect(this,&QMLControl::changeHeatSwitch,core,&ProgramCore::HeatSwitchChange);
 }
 
@@ -26,6 +27,7 @@ void QMLControl::printStart(QString slicePackPath)
 
 void QMLControl::PhotoChangeSlot(QString path)
 {
+    qDebug()<<"changePhoto触发";
     emit changePhoto(path);
 }
 
@@ -36,7 +38,14 @@ void QMLControl::UnzipFinishSlot()
 
 void QMLControl::StopPrintSlot()
 {
+    qDebug() << "QMLControl::StopPrintSlot() 发送StopPrint()信号";
     emit stopPrint();
+}
+
+void QMLControl::PrintCompleteSlot()
+{
+    qDebug() << "QMLControl::PrintCompleteSlot() PrintCompleteSlot()信号";
+    emit printComplete();
 }
 
 void QMLControl::checkUpdate(QString version)
@@ -82,10 +91,12 @@ void QMLControl::InitScreen()
     process.waitForFinished();
     cmdResult = process.readAllStandardOutput();
     cmdFirstAnalyze = cmdResult.split("\n");
-    for (int i = 0;i<cmdFirstAnalyze.count();i++)
+    //qDebug() << "cmdFirstAnalyze.count()  " << cmdFirstAnalyze.count();
+    for (int i = 0 ; i < cmdFirstAnalyze.count() - 1 ; i++)
     {
         cmdSecondAnalyze = cmdFirstAnalyze[i].split("\t",QString::SkipEmptyParts);
-        if(cmdSecondAnalyze[0].contains("wch.cn USB2IIC_CTP_CONTROL"))//优创想的屏幕(创乐博的主板)
+        //qDebug() << "cmdSecondAnalyze  " << cmdSecondAnalyze;
+        if(cmdSecondAnalyze[0].contains("ILITEK ILITEK-TP"))//("wch.cn USB2IIC_CTP_CONTROL"))//优创想的屏幕(创乐博的主板)
         {
             id = cmdSecondAnalyze[1].split("id=")[1];
             break;

@@ -46,7 +46,7 @@ Rectangle{
             anchors.fill: parent
             onClicked:
             {
-                vkb.visible = false;
+                inputPanel.visible = false;
             }
         }
 
@@ -95,7 +95,7 @@ Rectangle{
 
                 onPressed:
                 {
-                    vkb.visible = true;
+                    inputPanel.visible = true;
                 }
             }
             Image {
@@ -172,7 +172,7 @@ Rectangle{
                 anchors.fill:parent
                 onClicked:
                 {
-                    vkb.visible = false;
+                    inputPanel.visible = false;
                     wifiConnectBackground.connectText = "正在连接";
                     //点击后发送连接wifi的信号
                     wifiConnectBackground.connectWifi(wifiNameText.wifiName, wifiPasswordTextInput.text);

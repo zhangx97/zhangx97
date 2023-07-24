@@ -12,10 +12,14 @@ Item {
         color: "#7F2F4F4F"
         MouseArea
         {
-            anchors.fill: parent
+//            anchors.fill: parent
+            height: 680
+            width: 1920
+            anchors.top: parent.top
+            anchors.left: parent.left
             onClicked:
             {
-                background.closeAdjustPlaneWindow();
+                applicationLoader.source = "";
             }
         }
         Rectangle
@@ -24,16 +28,17 @@ Item {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            height: 200
+            height: 400
 
             Row
             {
                 id:planeFunctionRow
                 anchors.left: parent.left
-                anchors.leftMargin: 300
-                anchors.verticalCenter: parent.verticalCenter
-                width: 1000
-                spacing: 15
+                anchors.leftMargin: 70
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 70
+                width: 1800
+                spacing: 20
                 Repeater
                 {
                     model:[
@@ -45,8 +50,8 @@ Item {
                     ]
                     Rectangle
                     {
-                        width:200
-                        height:80
+                        width:340
+                        height:140
                         border.width:1
                         MouseArea
                         {
@@ -84,26 +89,27 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             text: qsTr(modelData.show)
-                            font.pointSize: 16
+                            font.pointSize: 36
                         }
                     }
                 }
             }
             Text {
                 id: currentPosition
-                anchors.left: planeFunctionRow.right
-                anchors.leftMargin: 200
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 70
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenterOffset: -75
                 text: qsTr("当前位置：")
-                font.pointSize: 16
+                font.pointSize: 36
             }
             Text {
                 id: positionValue
                 anchors.left: currentPosition.right
                 anchors.leftMargin: 10
-                anchors.verticalCenter: parent.verticalCenter
-                text: qsTr("50.00")
-                font.pointSize: 16
+                anchors.bottom: currentPosition.bottom
+                text: qsTr("120.00")
+                font.pointSize: 36
             }
         }
     }

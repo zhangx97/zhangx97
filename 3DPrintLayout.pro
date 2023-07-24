@@ -39,13 +39,16 @@ SOURCES += \
     Script/MaterialSync/materialsync.cpp \
     Script/Network/TCP/getfile.cpp \
     Script/Network/qmlnetmodel.cpp \
+    Script/OpenDoor/opendoor.cpp \
     Script/Print3DControler/projectphoto.cpp \
     Script/Print3DControler/qmlcontrol.cpp \
     Script/SQL/sql.cpp \
     Script/ScreenProtect/screenprotect.cpp \
     Script/SettingPageItem/settingpageitem.cpp \
-    Script/SlicePackList/showslicepack.cpp \
+    Script/SlicePackList/newshowslicepack.cpp \
+    Script/SlicePackList/readmodelpack.cpp \
     Script/StateMachine/qmlstate.cpp \
+    Script/Udisk/udisktransfer.cpp \
     Script/Upate/update.cpp \
     Script/lightEngine/lcdlight.cpp \
     Script/lightEngine/light_engine.cpp \
@@ -87,13 +90,16 @@ HEADERS += \
     Script/MaterialSync/materialsync.h \
     Script/Network/TCP/getfile.h \
     Script/Network/qmlnetmodel.h \
+    Script/OpenDoor/opendoor.h \
     Script/Print3DControler/projectphoto.h \
     Script/Print3DControler/qmlcontrol.h \
     Script/SQL/sql.h \
     Script/ScreenProtect/screenprotect.h \
     Script/SettingPageItem/settingpageitem.h \
-    Script/SlicePackList/showslicepack.h \
+    Script/SlicePackList/newshowslicepack.h \
+    Script/SlicePackList/readmodelpack.h \
     Script/StateMachine/qmlstate.h \
+    Script/Udisk/udisktransfer.h \
     Script/Upate/update.h \
     Script/lightEngine/lcdlight.h \
     Script/lightEngine/light_engine.h \

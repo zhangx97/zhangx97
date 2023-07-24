@@ -28,6 +28,7 @@ public:
     void PhotoChangeSlot(QString path);
     void UnzipFinishSlot();
     void StopPrintSlot();
+    void PrintCompleteSlot();
 
     //检查更新
     QThread *DownloadThread;
@@ -44,6 +45,7 @@ signals:
     void changePhoto(QString path);
     void unzipFinish();
     void stopPrint();
+    void printComplete();
     void UpdateCheck(QString version);
     void confirmUpdate();
     void changeHeatSwitch(bool flag);

@@ -40,11 +40,19 @@ void NetworkActiveCheck::CheckNetworkOnline()
 
 }
 
-void NetworkActiveCheck::NetworkTest()
+int NetworkActiveCheck::NetworkTest()
 {
-
-    InternetTest();
-    LocalNetTest();
+    bool InternetTestReturn, LocalNetTestReturn;
+    InternetTestReturn = InternetTest();
+    LocalNetTestReturn = LocalNetTest();
+    if (InternetTestReturn || LocalNetTestReturn)
+    {
+        return 2;
+    }else if (!InternetTestReturn || !LocalNetTestReturn) {
+        return 0;
+    }else {
+        return 1;
+    }
 }
 
 bool NetworkActiveCheck::LocalNetTest()

@@ -4,6 +4,7 @@
 
 #include "Script/lightEngine/cyusbserialcontroller.h"
 #include "Script/StateMachine/config_and_state.h"
+#include "Script/Print3DControler/xml_operation.h"
 
 class CyUSBSerialLib : public CyUSBSerialController
 {
@@ -23,6 +24,7 @@ public:
     bool AutoSetValue(int targetLight,int offset);
     //打开光机
 
+    XMLOperation * devNumXML;
 
     double GetLedTemperature();
     int GetLedCurrent();

@@ -34,7 +34,7 @@ private:
     CY_RETURN_STATUS I2CWrite(const quint8 &deviceNum, const quint8 &interfaceNum, const quint8 &address, const quint32 &len, quint8 *buf);
     CY_RETURN_STATUS I2CRead(const quint8 &deviceNum, const quint8 &interfaceNum, const quint8 &address, const quint32 &len, quint8 *buf);
     CY_RETURN_STATUS cySPIWaitForIdle(const CY_HANDLE &handle);
-    CY_RETURN_STATUS isCypressDevice(const quint8 &deviceNum) const;
+    bool isCypressDevice(const quint8 &deviceNum) const;
 
     quint8 numDevices;
     CY_HANDLE cyHandle;

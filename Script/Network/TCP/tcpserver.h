@@ -34,7 +34,7 @@ public:
     void DisconnectSlot(qintptr);
     void StartPrintSlot(QString fileName);
     void ContinuePrintSlot();
-    void ProjectionIMGSlot(QString &imgPath);
+    void ProjectionIMGSlot(QString imgPath);
     void UTF8ToGB2312(QByteArray &code);
     QThread * DealOrderThread;
 
@@ -42,7 +42,7 @@ signals:
     void StartDealSignal(QString,qintptr);
     void StartPrintSignal(QString filePath);
     void ContinuePrintSignal();
-    void ProjectionIMGSignal(QString &imgPath);
+    void ProjectionIMGSignal(QString imgPath);
 
 protected:
     virtual void incomingConnection(qintptr socketDescriptor);

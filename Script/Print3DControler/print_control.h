@@ -10,6 +10,7 @@
 #include "Script/Print3DControler/unzip.h"
 #include "Script/Network/SerialPort/serialport.h"
 #include "Script/lightEngine/cyusbseriallib.h"
+#include "Script/Print3DControler/xml_operation.h"
 
 class PrintControl:public QObject
 {
@@ -31,19 +32,21 @@ public:
 
     //属性
     QString photoPath();
-    void SetPhotoPath(const QString & photoPath);
+    void SetPhotoPath(QString photoPath);
 
 signals:
-    void photoChange(const QString & photoPath);//向子窗口发送需要显示的图片
+    void photoChange(QString photoPath);//向子窗口发送需要显示的图片
     void MachineIsStartPrintNowSignal();//控制帧进行播放的信号
     void UnzipFinish();
     void StopPrint();
+    void PrintComplete();
 
 
 private:
     QXmlStreamReader * reader;
     SerialPort * PrintCmd;
     CyUSBSerialLib * projection;
+    XMLOperation * materialXml;
 
     QString projectionImgPath;//需要子窗口显示的图片路径
     int PrintingCount;

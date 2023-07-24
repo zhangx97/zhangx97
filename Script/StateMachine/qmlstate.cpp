@@ -5,7 +5,7 @@ QMLState::QMLState()
 {
     //状态每秒更新
     updateTimer = new QTimer();
-    updateTimer->start(1000);
+    updateTimer->start(5000);
     connect(updateTimer,&QTimer::timeout,[&](){
         UpdateSecond();
     });
@@ -143,6 +143,14 @@ QString QMLState::ReturnBackImg()
 QString QMLState::ReturnFrontImg()
 {
     QString ImgFrontPath = "../images/BottomView.png";
+    QDir imageDir(ImgFrontPath);
+    QString imagePath = "file:///"+imageDir.absolutePath();
+    return imagePath;
+}
+
+QString QMLState::ReturnTestImg()
+{
+    QString ImgFrontPath = "../images/BeautifulView.png";
     QDir imageDir(ImgFrontPath);
     QString imagePath = "file:///"+imageDir.absolutePath();
     return imagePath;

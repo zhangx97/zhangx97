@@ -28,6 +28,8 @@ public:
     QVector<QVector<QString> *>allMaterial;
     QVector<QVector<QString> *> GetAllMaterial();
 
+    QString GetTargetLight(QString targetMaterial);
+
 //    void GetAllMaterial();
 
 private:

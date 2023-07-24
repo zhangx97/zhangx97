@@ -76,6 +76,7 @@ Item {
             }
         }
         //材料同步按钮
+        /*
         Rectangle
         {
             id:materialSyncBottom
@@ -108,5 +109,6 @@ Item {
                font.pointSize: 12
             }
         }
+        */
     }
 }

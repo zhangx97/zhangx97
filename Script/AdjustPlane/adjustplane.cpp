@@ -18,8 +18,9 @@ AdjustPlane::AdjustPlane(QObject *parent) :
             horizonSerial = new SerialPort();
             horizonSerial->SendPort("M18\n");
             horizonSerial->SendPort("G91\n");
+            delete horizonSerial;
         }
-    position = 50;
+    position = 120;
     emit positionChange(QString::number(position,10,2));
 }
 
@@ -45,7 +46,7 @@ void AdjustPlane::sendCmd(QString type)
     }
     if(cmdSplit[0] == "M18")
     {
-        position = 50;
+        position = 120;
     }
     if(cmdSplit[0] == "G1")
     {
@@ -54,7 +55,9 @@ void AdjustPlane::sendCmd(QString type)
         position+=positionData.toDouble();
     }
     QByteArray send = cmd.toLatin1()+"\n";
+    horizonSerial = new SerialPort();
     horizonSerial->SendPort(send);
+    delete horizonSerial;
     emit positionChange(QString::number(position,10,2));
 }
 

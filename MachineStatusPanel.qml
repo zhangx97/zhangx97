@@ -7,17 +7,18 @@ Item {
     property alias maxValue: statusPanel.maxValue //仪表盘指定的最大数值
     property alias propertyName: propertyName.typeName //仪表盘属性的名称
     property alias size:statusHalo.size//整个控件与圆环的大小
+    property alias unit:propertyValue.unit
+
 
     Rectangle{
         id:statusHalo
         property int size: 0
         width:size
-        height: size//160
-        Canvas{
+        height: size
+
+        Canvas {
             id: statusPanel
-            anchors.top:parent.top
-            anchors.topMargin: 10
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.centerIn: parent
             width:size
             height: size
 
@@ -26,61 +27,87 @@ Item {
             property double maxValue        //最大数值
             property int circlex: width/2    //圆心坐标
             property int circley: height/2    //圆心坐标
-            property double rotateValue: 1.5    //旋转的范围
+            property double rotateValue: 1    //旋转的范围
             property bool firstDraw: true
 
             onPaint: {
                 var ctx = getContext("2d");
-                ctx.strokeStyle = haloColor;
-                ctx.lineWidth = 8;
-                ctx.translate(circlex, circley);
-                ctx.rotate(rotateValue*Math.PI);
-                ctx.beginPath();
-                ctx.arc(0, 0, statusPanel.width/2-10, 0, (numberValue/maxValue)*2*Math.PI);  //将要绘制一个圆形
-                ctx.stroke();
-//                if(firstDraw)
-//                {
-//                    var actx = getContext("2d");
-//                    actx.strokeStyle = "#7F2F4F4F";
-//                    actx.lineWidth = 8;
-//                    actx.translate(0,0);
-//                    actx.rotate(0*Math.PI);
-//                    actx.beginPath();
-//                    actx.arc(0, 0, width/2-10, 0, 2*Math.PI);  //将要绘制一个圆形
-//                    actx.stroke();
-//                }
+                ctx.translate(circlex, circley);        //平移
+                ctx.rotate(rotateValue*Math.PI);      //正方向旋转270度
 
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+
+                ctx.strokeStyle = "black";
+                ctx.beginPath();
+                ctx.arc(0, 0, statusPanel.width/2-20, 0, (numberValue/maxValue)*2*Math.PI);  //将要绘制一个圆形
+                ctx.stroke();
+
+                ctx.globalCompositeOperation = "source-atop";
+
+                ctx.beginPath();
+                ctx.arc(0, 0, statusPanel.width/2-20, 0, 2*Math.PI);  //将要绘制一个圆形
+                var gnt1 = ctx.createLinearGradient(60, 0, 0, -60);
+                gnt1.addColorStop(0,"#3f4d68");
+                gnt1.addColorStop(1,"#578fcc");
+                ctx.strokeStyle = gnt1;
+                ctx.stroke();
+
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = "#4d91f2";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(60*Math.cos((numberValue/maxValue)*2*Math.PI), 60*Math.sin((numberValue/maxValue)*2*Math.PI), 8, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.globalCompositeOperation = "destination-over";
+
+                ctx.fillStyle = "white"
+                ctx.beginPath();
+                ctx.arc(0, 0, statusPanel.width/2-30, 0, 2*Math.PI);  //将要绘制一个圆形
+                ctx.fill();
+
+                ctx.fillStyle = "#e6f0fa"
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(0, 0, statusPanel.width/2-10, 0, 2*Math.PI);  //将要绘制一个圆形
+                ctx.fill();
             }
 
             //显示当前的数值
             Text {
                 anchors.horizontalCenter:parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: -12
                 id: propertyValue
-                text: statusPanel.numberValue
+                property var unit
+                text: statusPanel.numberValue + unit
+                font.pixelSize: 28
+            }
+
+            //属性名
+            Text
+            {
+                anchors.horizontalCenter:parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 12
+                id: propertyName
+                property var typeName   //属性名
+                text: qsTr(typeName)
+                font.pixelSize: 16
+                color: "grey"
             }
         }
     }
 
-    //属性名
-    Text
-    {
-        anchors.top: statusHalo.bottom
-        anchors.topMargin: 10
-        anchors.bottomMargin: 10
-        anchors.horizontalCenter: statusHalo.horizontalCenter
-        id: propertyName
-        property var typeName   //属性名
-        text: qsTr(typeName)
-        font.pointSize: 16
-    }
-
-    function canvasRepaint()
-    {
-        statusPanel.circlex=0;
-        statusPanel.circley=0;
-        statusPanel.rotateValue = 0;
-        statusPanel.firstDraw = false;
-        statusPanel.requestPaint();
-    }
+//    function canvasRepaint()
+//    {
+//        statusPanel.circlex=0;
+//        statusPanel.circley=0;
+//        statusPanel.rotateValue = 0;
+//        statusPanel.firstDraw = false;
+//        statusPanel.requestPaint();
+//    }
 }

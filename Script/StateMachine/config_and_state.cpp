@@ -20,7 +20,7 @@ int ConfigAndState::crackDistance= 0;                                  //
 int ConfigAndState::curBrightness = 0;                                 //当前亮度
 int ConfigAndState::curCurrent = 0;                                    //当前电流
 //int ConfigAndState::curHeatData = 0;                                   //
-int ConfigAndState::curLEDTemp = 100;                                    //led温度
+int ConfigAndState::curLEDTemp = 0;                                    //led温度
 //int ConfigAndState::curResinTemp = 0;                                  //
 //--------------------------------------------------------------------------------------------------D
 int ConfigAndState::descendSpeed= 0;                                   //电机下降速度，单位：转/分钟
@@ -90,7 +90,7 @@ QStringList ConfigAndState::stopCommand;                               //
 QStringList ConfigAndState::supportParament;                           //支撑参数
 //--------------------------------------------------------------------------------------------------T
 int ConfigAndState::targetLight=0;                                     //光机目标亮度
-int ConfigAndState::targetResinTemp = 0;                               //加热的目标温度
+double ConfigAndState::targetResinTemp = 0;                               //加热的目标温度
 QString ConfigAndState::TcpHostIp= "";                                 //打印机ip
 QString ConfigAndState::temp_path = "/sys/bus/w1/devices/";            //读取温度的路径
 bool ConfigAndState::Test_GetPress = false;                            //循环测试压力传感器
@@ -101,6 +101,7 @@ QString ConfigAndState::version = "";                                  //版本
 //DevSer = NULL;                                                       //串口通信用的，还没做到
 //nSleepTime = datetime.datetime.now();                                //用于计算休眠的，还没用到
 //------------------------------------------------------------------------------------------
+int ConfigAndState::slicepackMaxNum= 100;
 
 //确定所有表示打印机状态的静态变量的值
 void InitializeConfig()
@@ -140,12 +141,14 @@ void InitializeConfig()
            ConfigAndState::heater = QString("%1,0.0").arg(readHeater);
         }
         ConfigAndState::heaterSwitch = xmlConfig->ReadXMLText("加热开关");
+        ConfigAndState::targetResinTemp = xmlConfig->ReadXMLText("目标温度").toDouble();
         ConfigAndState::sleepTime = xmlConfig->ReadXMLText("休眠时间").toInt();
         ConfigAndState::printID = xmlConfig->ReadXMLText("序列号");
         ConfigAndState::modelType = xmlConfig->ReadXMLText("机型").toInt();
         ConfigAndState::lightSensorType = xmlConfig->ReadXMLText("光机类型").toInt();
         ConfigAndState::lightValueOffset = xmlConfig->ReadXMLText("亮度误差").toInt();
         ConfigAndState::pluseCount = xmlConfig->ReadXMLText("测压脉冲数").toInt();
+        ConfigAndState::slicepackMaxNum = xmlConfig->ReadXMLText("slicepack文件上限").toInt();
         if(xmlConfig->ReadXMLText("局域网联通") == "true")
         {
 //           ConfigAndState::localNetAlive = true;
@@ -376,6 +379,29 @@ QString ConfigAndState::CalculateResidueTime()
 
     QString remainTimeString = hour+":"+minute+":"+second;
     return remainTimeString;
+}
+
+void ConfigAndState::deleteExtraFile(QString filetype)
+{
+    QDir::setCurrent("/home/pi/python_project/core");
+    QStringList CurrentAllNameFilters;
+    CurrentAllNameFilters << filetype;
+    QDir slicepackdir("../slicepack/");
+    QStringList CurrentAllFiles = slicepackdir.entryList(CurrentAllNameFilters,QDir::Files|QDir::Readable,QDir::Time);
+    int deletenum = CurrentAllFiles.count() - ConfigAndState::slicepackMaxNum;
+    if (deletenum > 0)
+    {
+        for (int j = 0; j < deletenum; j++)
+        {
+            QString deleteSlicepackFile = QString("../slicepack/%1.zip").arg(CurrentAllFiles[CurrentAllFiles.count()-j-1].split(".")[0]);
+            QString deleteUnzipSlicepackDir = QString("../unzipSlicepack/%1").arg(CurrentAllFiles[CurrentAllFiles.count()-j-1].split(".")[0]);
+            system(QString("sudo rm %1 -rf").arg(deleteSlicepackFile).toUtf8());
+            qDebug() << "删除slicepack目录下旧的超过最大文件限制的文件 :" << QString("sudo rm %1 -rf").arg(deleteSlicepackFile);
+            system(QString("sudo rm %1 -rf").arg(deleteUnzipSlicepackDir).toUtf8());
+            qDebug() << "删除slicepack目录下旧的超过最大文件限制的文件夹 :" << QString("sudo rm %1 -rf").arg(deleteUnzipSlicepackDir);
+        }
+
+    }
 }
 
 //int ConfigAndState::GetResidueCount()

@@ -37,16 +37,24 @@ CyUSBSerialController::CyUSBSerialController():
 }
 
 
-CY_RETURN_STATUS CyUSBSerialController::isCypressDevice(const quint8 &deviceNum) const
+bool CyUSBSerialController::isCypressDevice(const quint8 &deviceNum) const
 {
-    CY_HANDLE handle;
+    CY_HANDLE myhandle;
     CY_RETURN_STATUS rStatus;
     quint8 interfaceNum = 0;
-
-    rStatus = CyOpen(deviceNum, interfaceNum, &handle);
+    unsigned char sig[6];
+    rStatus = CyOpen(deviceNum, interfaceNum, &myhandle);
     qDebug()<<QString("Cy设备判断结果：%1").arg(rStatus);
-    CyClose(handle);
-    return rStatus;
+    if (rStatus == CY_SUCCESS) {
+        if (CyGetSignature(myhandle, sig) == CY_SUCCESS) {
+            CyClose(myhandle);
+            return true;
+        } else
+            CyClose(myhandle);
+            return false;
+    } else
+        return false;
+
 }
 
 qint32 CyUSBSerialController::findDevice()
@@ -56,6 +64,7 @@ qint32 CyUSBSerialController::findDevice()
     uchar deviceName[256];
 
     rStatus = CyLibraryInit();
+    qDebug()<<"CY_ERROR_DRIVER_INIT_FAILED : " << CY_ERROR_DRIVER_INIT_FAILED;
     qDebug()<<QString("CyLibraryInit状态：%1").arg(rStatus);
     if(rStatus != CY_SUCCESS){
         errorString = QString("CY:Error in Doing library init: Error NO:<%1>").arg(rStatus);
@@ -74,7 +83,7 @@ qint32 CyUSBSerialController::findDevice()
         qDebug()<<QString("CyGetDeviceInfo返回值：%1").arg(rStatus);
         qDebug()<<QString("Cy设备判断结果：%1").arg(deviceInfo.productName[num]);
         if(rStatus == CY_SUCCESS){
-            if(isCypressDevice(num) != CY_SUCCESS){
+            if(!isCypressDevice(num)){
                 continue;
             }
             numberInterfaces = deviceInfo.numInterfaces;
@@ -383,6 +392,10 @@ CY_RETURN_STATUS CyUSBSerialController::cyAPIInit(const quint8 &deviceNum,int li
         readLightValueCommand = 0xB4;
     }
 
+    qDebug() << "lightSensorType : " << lightSensorType;
+    qDebug() << "aSlaveAddress7bit : " << aSlaveAddress7bit;
+    qDebug() << "readLightValueCommand : " << readLightValueCommand;
+
     quint16 ledR = 0, ledG = 1, ledB = 0;
 
     rStatus = CyLibraryInit();
@@ -483,7 +496,7 @@ CY_RETURN_STATUS CyUSBSerialController::getLightSensor(const quint8 &deviceNum, 
     rStatus = I2CWrite(deviceNum, I2C_IF_NUM, aSlaveAddress7bit, writeSize, sendBuf);
     if(rStatus == CY_SUCCESS){
         QThread::sleep(1);
-        sendBuf[0] = 0xAC;
+        sendBuf[0] = readLightValueCommand;
         rStatus = I2CWrite(deviceNum, I2C_IF_NUM, aSlaveAddress7bit, 1, sendBuf);
         if(rStatus == CY_SUCCESS){
             rStatus = I2CRead(deviceNum, I2C_IF_NUM, aSlaveAddress7bit, readSize, readBuf);
